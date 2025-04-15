@@ -12,8 +12,11 @@ node_modules
 # TypeScript specific
 *.tsbuildinfo
 *.js.map
-/frontend/src/*.js
-/backend/src/*.js
+# Don't track JS files compiled from TypeScript
+/backend/src/**/*.js
+/backend/src/**/*.js.map
+# Keep any intentional JS files in the frontend src (if any)
+# /frontend/src/**/*.js is removed since your frontend build process handles this
 
 # Testing
 /coverage
