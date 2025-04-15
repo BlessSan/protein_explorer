@@ -1,0 +1,69 @@
+# Dependencies
+node_modules
+/.pnp
+.pnp.js
+
+# Production build files
+/dist
+/build
+/frontend/dist
+/backend/dist
+
+# TypeScript specific
+*.tsbuildinfo
+*.js.map
+/frontend/src/*.js
+/backend/src/*.js
+
+# Testing
+/coverage
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# You might want to include .env.example
+
+# Editor specific
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# AWS specific
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+.aws-sam/
+
+# Firebase
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+
+# Misc
+.cache/
+.temp/
+.thumbs/
