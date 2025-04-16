@@ -56,10 +56,11 @@ ehthumbs.db
 Thumbs.db
 
 # AWS specific
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
-.aws-sam/
+backend/.elasticbeanstalk/*
+!backend/.elasticbeanstalk/*.cfg.yml
+!backend/.elasticbeanstalk/*.global.yml
+backend/.aws-sam/
+!backend/.ebextensions/
 
 # Firebase
 firebase-debug.log
