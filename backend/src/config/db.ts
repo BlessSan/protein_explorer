@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import logger from "./logger";
 
 dotenv.config();
 
@@ -7,17 +8,25 @@ type MongooseError = Error & {
   code?: number;
 };
 
-const connectDB = async () => {
+const connectDB = async (): Promise<void> => {
   try {
-    const mongoURI = process.env.MONGODB_URI || "";
+    const mongoURI = process.env.MONGODB_URI;
+
     if (!mongoURI) {
-      throw new Error("MongoDB URI is not defined in environment variables");
+      logger.error("MongoDB URI not found in environment variables");
+      process.exit(1); // Exit with error
     }
+
+    logger.info("Attempting to connect to MongoDB...");
     await mongoose.connect(mongoURI);
-    console.log("MongoDB connected");
+    logger.info("MongoDB connected successfully");
   } catch (error) {
-    const mongooseError = error as MongooseError;
-    console.error(`MongoDB connection error: ${mongooseError.message}`);
+    const mongoError = error as MongooseError;
+    logger.error("MongoDB connection error:", {
+      message: mongoError.message,
+      code: mongoError.code,
+      stack: mongoError.stack,
+    });
     process.exit(1);
   }
 };
