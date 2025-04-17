@@ -9,6 +9,16 @@ on:
     branches: [master]
     paths:
       - "frontend/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
 
 jobs:
   build-and-test:
@@ -41,7 +51,7 @@ jobs:
         run: npm run build
 
       - name: Upload build artifacts
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
@@ -49,7 +59,7 @@ jobs:
 
   deploy:
     needs: build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
