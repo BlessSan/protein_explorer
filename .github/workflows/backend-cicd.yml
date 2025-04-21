@@ -1,0 +1,104 @@
+name: Backend CI/CD (Simplified)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "backend/**"
+  pull_request:
+    branches: [master]
+    paths:
+      - "backend/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    # Only deploy on push to master or manual trigger, but still run build/test for PRs
+    env:
+      DEPLOY: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch' }}
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+          cache-dependency-path: "./backend/package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npx eslint . --ext .ts
+
+      - name: TypeScript Check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Security audit
+        run: npm audit --production || true
+
+      # Create deployment package - only if we're deploying
+      - name: Create deployment package
+        if: env.DEPLOY == 'true'
+        run: |
+          # Install production dependencies
+          npm ci --only=production
+
+          # Create ZIP artifact directly
+          zip -r backend-deploy.zip dist package.json package-lock.json .ebextensions Procfile node_modules
+
+          # Verify zip was created successfully
+          ls -la backend-deploy.zip
+
+      # Install Python for EB CLI - only if we're deploying
+      - name: Set up Python
+        if: env.DEPLOY == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      # Install EB CLI - only if we're deploying
+      - name: Install EB CLI
+        if: env.DEPLOY == 'true'
+        run: |
+          pip install awsebcli
+          eb --version
+
+      # Configure AWS credentials - only if we're deploying
+      - name: Configure AWS credentials
+        if: env.DEPLOY == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'ap-southeast-1' }}
+
+      # Deploy using EB CLI - only if we're deploying
+      - name: Deploy to Elastic Beanstalk
+        if: env.DEPLOY == 'true'
+        run: |
+          # Deploy using the artifact specified in config.yml
+          eb deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION || 'ap-southeast-1' }}
