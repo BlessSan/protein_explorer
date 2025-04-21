@@ -44,6 +44,19 @@ jobs:
           cache: "npm"
           cache-dependency-path: "./backend/package-lock.json"
 
+      - name: Set version label
+        id: version
+        run: echo "version=$(date +'%Y%m%d%H%M%S')-${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Set version description
+        id: description
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B | head -n 1)
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          TRIGGER="${{ github.event_name }}"
+          ACTOR="${{ github.actor }}"
+          echo "description=[$SHORT_SHA] $COMMIT_MSG ($TRIGGER by $ACTOR)" >> $GITHUB_OUTPUT
+
       - name: Install dependencies
         run: npm ci
 
@@ -79,6 +92,7 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: protein-explorer-backend
           environment_name: protein-explorer-backend
-          version_label: 12345
+          version_label: ${{ steps.version.outputs.version }}
+          version_description: ${{ steps.description.outputs.description }}
           region: ${{ secrets.AWS_DEFAULT_REGION }}
           deployment_package: ./backend/backend-deploy.zip
