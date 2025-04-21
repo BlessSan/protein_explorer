@@ -26,6 +26,9 @@ jobs:
     # Only deploy on push to master or manual trigger, but still run build/test for PRs
     env:
       DEPLOY: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch' }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
     defaults:
       run:
@@ -80,7 +83,8 @@ jobs:
       - name: Install EB CLI
         if: env.DEPLOY == 'true'
         run: |
-          pip install awsebcli
+          python -m pip install --upgrade pip
+          pip install awsebcli --upgrade
           eb --version
 
       # Configure AWS credentials - only if we're deploying
@@ -91,6 +95,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'ap-southeast-1' }}
+
+      - name: Init EB CLI
+        run: |
+          eb init --platform "node.js-22" --region ${{secrets.AWS_DEFAULT_REGION }}
 
       # Deploy using EB CLI - only if we're deploying
       - name: Deploy to Elastic Beanstalk
