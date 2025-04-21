@@ -72,37 +72,13 @@ jobs:
           # Verify zip was created successfully
           ls -la backend-deploy.zip
 
-      # Install Python for EB CLI - only if we're deploying
-      - name: Set up Python
-        if: env.DEPLOY == 'true'
-        uses: actions/setup-python@v5
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v22
         with:
-          python-version: "3.10"
-
-      # Install EB CLI - only if we're deploying
-      - name: Install EB CLI
-        if: env.DEPLOY == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install awsebcli --upgrade
-          eb --version
-
-      # Configure AWS credentials - only if we're deploying
-      - name: Configure AWS credentials
-        if: env.DEPLOY == 'true'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION || 'ap-southeast-1' }}
-
-      # Deploy using EB CLI - only if we're deploying
-      - name: Deploy to Elastic Beanstalk
-        if: env.DEPLOY == 'true'
-        run: |
-          # Deploy using the artifact specified in config.yml
-          eb deploy --profile default
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION || 'ap-southeast-1' }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: protein-explorer-backend
+          environment_name: protein-explorer-backend
+          version_label: 12345
+          region: ${{ secrets.AWS_DEFAULT_REGION }}
+          deployment_package: backend-deploy.zip
