@@ -101,7 +101,7 @@ jobs:
         if: env.DEPLOY == 'true'
         run: |
           # Deploy using the artifact specified in config.yml
-          eb deploy
+          eb deploy --profile default
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
