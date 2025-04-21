@@ -81,4 +81,4 @@ jobs:
           environment_name: protein-explorer-backend
           version_label: 12345
           region: ${{ secrets.AWS_DEFAULT_REGION }}
-          deployment_package: backend-deploy.zip
+          deployment_package: ./backend/backend-deploy.zip
