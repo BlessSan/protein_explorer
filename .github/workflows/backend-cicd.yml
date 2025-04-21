@@ -76,13 +76,11 @@ jobs:
       - name: Create deployment package
         if: env.DEPLOY == 'true'
         run: |
-          # Install production dependencies
-          npm ci --only=production
+          # Prune to production dependencies (more efficient than reinstalling)
+          npm prune --production
 
           # Create ZIP artifact directly
-          zip -r backend-deploy.zip dist package.json package-lock.json .ebextensions Procfile node_modules .elasticbeanstalk/*cfg.yml .elasticbeanstalk/*global.yml
-          # Verify zip was created successfully
-          ls -la backend-deploy.zip
+          zip -r backend-deploy.zip dist package.json package-lock.json .ebextensions Procfile node_modules .elasticbeanstalk/*.yml .elasticbeanstalk/*global.yml
 
       - name: Deploy to EB
         if: env.DEPLOY == 'true'
