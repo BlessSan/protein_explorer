@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("API is running...");
+  res.send("API is running deploy test v1...");
 });
 
 // Basic route for testing
