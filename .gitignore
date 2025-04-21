@@ -57,7 +57,7 @@ Thumbs.db
 
 # AWS specific
 backend/.elasticbeanstalk/*
-!backend/.elasticbeanstalk/*.cfg.yml
+!backend/.elasticbeanstalk/*.yml
 !backend/.elasticbeanstalk/*.global.yml
 backend/.aws-sam/
 !backend/.ebextensions/
