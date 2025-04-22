@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only deploy on push to master or manual trigger, but still run build/test for PRs
     env:
-      DEPLOY: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch' }}
+      DEPLOY: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, '[deploy]')) || github.event_name == 'workflow_dispatch' }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
